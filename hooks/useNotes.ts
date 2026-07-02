@@ -59,7 +59,9 @@ export function useNotes() {
   const remove = useCallback(
     async (note: Note) => {
       await deleteNote(note.id);
-      await deletePhoto(note.imageUri);
+      if (note.imageUri) {
+        await deletePhoto(note.imageUri);
+      }
       removeNote(note.id);
     },
     [removeNote]

@@ -16,7 +16,9 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { Loading } from '../../components/ui/Loading';
 import { useAppStore } from '../../store/appStore';
 import { useNotes } from '../../hooks/useNotes';
+import { useCards } from '../../hooks/useCards';
 import { BorderRadius, Colors, Spacing } from '../../constants/colors';
+import { Card } from '../../types';
 
 export default function NoteDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,25 +26,23 @@ export default function NoteDetail() {
   const notes = useAppStore((state) => state.notes);
   const folders = useAppStore((state) => state.folders);
   const { remove, toggleFavorite } = useNotes();
+  const { cards } = useCards();
+
+  const apiKey = process.env.EXPO_PUBLIC_UMANS_API_KEY;
+  const hasApiKey = Boolean(apiKey && apiKey.startsWith('sk-'));
 
   const note = useMemo(() => notes.find((n) => n.id === id), [notes, id]);
   const folder = useMemo(
     () => folders.find((f) => f.id === note?.folderId),
     [folders, note]
   );
+  const noteCards = useMemo(
+    () => cards.filter((c) => c.noteId === id),
+    [cards, id]
+  );
 
   if (!note) {
     return <Loading message="Loading note..." />;
-  }
-
-  if (!note.imageUri) {
-    return (
-      <EmptyState
-        title="Note not found"
-        subtitle="The note you are looking for does not exist."
-        icon={<MaterialIcons name="error-outline" size={64} color={Colors.textTertiary} />}
-      />
-    );
   }
 
   const handleEdit = () => {
@@ -143,6 +143,49 @@ export default function NoteDetail() {
         ) : (
           <Text style={styles.emptyBody}>No additional notes</Text>
         )}
+
+        <View style={styles.cardsSection}>
+          <View style={styles.cardsHeader}>
+            <Text style={styles.cardsTitle}>
+              Flashcards · {noteCards.length}
+            </Text>
+            <View style={styles.cardHeaderActions}>
+              {hasApiKey && (
+                <Pressable
+                  onPress={() => router.push({ pathname: '/card/generate', params: { noteId: note.id } })}
+                  style={styles.addCardButton}
+                >
+                  <MaterialIcons name="auto-awesome" size={20} color={Colors.primary} />
+                </Pressable>
+              )}
+              <Pressable
+                onPress={() => router.push({ pathname: '/card/edit', params: { noteId: note.id } })}
+                style={styles.addCardButton}
+              >
+                <MaterialIcons name="add" size={20} color={Colors.primary} />
+              </Pressable>
+            </View>
+          </View>
+
+          {noteCards.length === 0 && (
+            <Text style={styles.cardsEmpty}>No cards yet. Add one to start reviewing.</Text>
+          )}
+
+          {noteCards.map((card) => (
+            <Pressable
+              key={card.id}
+              onPress={() => router.push({ pathname: '/card/edit', params: { cardId: card.id } })}
+              style={styles.cardItem}
+            >
+              <Text style={styles.cardFront} numberOfLines={2}>
+                {card.front}
+              </Text>
+              <Text style={styles.cardMeta}>
+                {card.type === 'cloze' ? 'Cloze' : 'Basic'} · {card.state}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -235,5 +278,55 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.textTertiary,
     fontStyle: 'italic',
+  },
+  cardsSection: {
+    marginTop: Spacing.xl,
+  },
+  cardsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+  },
+  cardsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  cardHeaderActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  addCardButton: {
+    width: 32,
+    height: 32,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardsEmpty: {
+    fontSize: 14,
+    color: Colors.textTertiary,
+    marginBottom: Spacing.md,
+  },
+  cardItem: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  cardFront: {
+    fontSize: 16,
+    color: Colors.text,
+    lineHeight: 22,
+  },
+  cardMeta: {
+    fontSize: 12,
+    color: Colors.textTertiary,
+    marginTop: Spacing.sm,
+    textTransform: 'capitalize',
   },
 });

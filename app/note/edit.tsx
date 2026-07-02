@@ -36,6 +36,8 @@ export default function NoteEditor() {
     extractedText?: string;
   }>();
 
+  const isTextOnly = params.imageUri === undefined || params.imageUri === '' || params.imageUri === null;
+
   const folders = useAppStore((state) => state.folders);
   const notes = useAppStore((state) => state.notes);
   const { add, update } = useNotes();
@@ -45,7 +47,7 @@ export default function NoteEditor() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [extractedText, setExtractedText] = useState('');
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState<string | null>(params.imageUri || null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [folderModalVisible, setFolderModalVisible] = useState(false);
@@ -67,11 +69,10 @@ export default function NoteEditor() {
       setExtractedText(existingNote.extractedText);
       setImageUri(existingNote.imageUri);
       setSelectedFolderId(existingNote.folderId);
-    } else {
+    } else if (!isEditing) {
       setTitle(params.title || '');
       setBody(params.body || '');
       setExtractedText(params.extractedText || '');
-      setImageUri(params.imageUri || null);
 
       if (params.folderId) {
         setSelectedFolderId(params.folderId);
@@ -117,10 +118,6 @@ export default function NoteEditor() {
       Alert.alert('Folder required', 'Please select or create a folder.');
       return;
     }
-    if (!imageUri) {
-      Alert.alert('Photo required', 'A photo is required for each note.');
-      return;
-    }
 
     setIsSaving(true);
     try {
@@ -130,6 +127,7 @@ export default function NoteEditor() {
           body,
           extractedText,
           folderId: selectedFolderId,
+          imageUri,
         });
         router.replace(`/note/${existingNote.id}`);
       } else {

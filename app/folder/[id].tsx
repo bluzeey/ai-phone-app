@@ -105,6 +105,12 @@ export default function FolderDetail() {
             <Text style={styles.topic}>{folder.topic}</Text>
           ) : null}
         </View>
+        <Pressable
+          onPress={() => router.push({ pathname: '/note/edit', params: { folderId: folder.id } })}
+          style={styles.headerButton}
+        >
+          <MaterialIcons name="note-add" size={24} color={Colors.primary} />
+        </Pressable>
         <Pressable onPress={handleDeleteFolder} style={styles.deleteButton}>
           <MaterialIcons name="delete-outline" size={24} color={Colors.danger} />
         </Pressable>
@@ -172,6 +178,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     marginTop: 2,
+  },
+  headerButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   deleteButton: {
     width: 44,

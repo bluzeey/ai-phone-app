@@ -45,7 +45,7 @@ export function useFolders() {
     async (folder: Folder) => {
       const notes = useAppStore.getState().notes.filter((n) => n.folderId === folder.id);
       await deleteFolder(folder.id);
-      await Promise.all(notes.map((n) => deletePhoto(n.imageUri)));
+      await Promise.all(notes.map((n) => (n.imageUri ? deletePhoto(n.imageUri) : Promise.resolve())));
       removeFolder(folder.id);
     },
     [removeFolder]

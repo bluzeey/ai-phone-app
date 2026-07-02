@@ -123,12 +123,20 @@ export default function Dashboard() {
             {notes.length} {notes.length === 1 ? 'note' : 'notes'}
           </Text>
         </View>
-        <Pressable
-          onPress={() => setModalVisible(true)}
-          style={styles.addFolderButton}
-        >
-          <MaterialIcons name="create-new-folder" size={24} color={Colors.primary} />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            onPress={() => router.push('/note/edit')}
+            style={styles.addFolderButton}
+          >
+            <MaterialIcons name="note-add" size={24} color={Colors.primary} />
+          </Pressable>
+          <Pressable
+            onPress={() => setModalVisible(true)}
+            style={styles.addFolderButton}
+          >
+            <MaterialIcons name="create-new-folder" size={24} color={Colors.primary} />
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -251,6 +259,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textSecondary,
     marginTop: Spacing.xs,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
   addFolderButton: {
     width: 44,

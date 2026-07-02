@@ -54,6 +54,24 @@ export default function RootLayout() {
             animation: 'slide_from_bottom',
           }}
         />
+        <Stack.Screen
+          name="card/edit"
+          options={{
+            animation: 'slide_from_bottom',
+          }}
+        />
+        <Stack.Screen
+          name="card/generate"
+          options={{
+            animation: 'slide_from_bottom',
+          }}
+        />
+        <Stack.Screen
+          name="review/session"
+          options={{
+            animation: 'fade',
+          }}
+        />
       </Stack>
     </SafeAreaProvider>
   );
